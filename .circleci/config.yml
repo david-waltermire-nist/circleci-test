@@ -1,0 +1,116 @@
+version: 2.1 # use CircleCI 2.1
+references:
+  common_environment: &common_environment
+    environment:
+      SAXON_VERSION: 9.9.0-1
+      CICD_DIR: git-oscal/build/ci-cd
+      OSCAL_REPO_DIR: git-oscal
+      OSCAL_BUILD_DIR: build_artifacts
+      SCHEMATRON_HOME: git-schematron
+      TERM: xterm
+    working_directory: ~/oscal
+  attach_build_workspace: &attach_build_workspace
+    attach_workspace:
+        at: build_artifacts
+  checkout: &checkout
+    checkout:
+      path: git-oscal
+  publish_artifacts: &publish_artifacts
+    store_artifacts:
+      path: build_artifacts
+commands:
+  install-github-release:
+    description: "Install Github Release"
+    steps:
+      - run:
+          name: Get Github Release
+          command: |
+            go get github.com/aktau/github-release
+  check-skip-build:
+    steps:
+      - run:
+          name: Check if job should be skipped
+          command: |
+            if [[ -f "$OSCAL_BUILD_DIR/.skipbuild" ]]; then
+              echo "Skipping job."
+              circleci step halt
+            fi
+executors:
+  java-executor:
+    docker: # run the steps with Docker
+      - image: circleci/openjdk:8-jdk-node-browsers
+    <<: *common_environment 
+  go-executor:
+    docker: # run the steps with Docker
+      - image: circleci/golang:1.12.5
+    <<: *common_environment 
+jobs: # a collection of 
+  job-ci-skip-check:
+    executor: java-executor
+    steps:
+      - checkout
+      - run:
+          command: |
+            mkdir -p "$OSCAL_BUILD_DIR/state"
+            COMMIT_MSG=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
+            if [[ $COMMIT_MSG == *"[ci deploy skip]"* ]]; then
+              echo "[ci deploy skip] detected. Stopping."
+              echo "branch: $CIRCLE_BRANCH" > "$OSCAL_BUILD_DIR/.skipbuild"
+            else
+              echo "branch: $CIRCLE_BRANCH" > "$OSCAL_BUILD_DIR/.runbuild"
+            fi
+      - persist_to_workspace:
+          root: build_artifacts
+          paths:
+            - .runbuild
+            - .skipbuild
+  job-echo-content-master:
+    executor: java-executor
+    steps:
+      - *checkout
+      - *attach_build_workspace
+      - check-skip-build
+      - run |
+          export
+  job-echo-content-pr:
+    executor: java-executor
+    steps:
+      - *checkout
+      - *attach_build_workspace
+      - check-skip-build
+      - run |
+          export
+  package:
+    executor: go-executor
+    steps:
+      - *checkout
+      - install-github-release
+      - run |
+          bash "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
+          find ~ -type f -print
+workflows:
+  version: 2
+  build:
+    jobs:
+      - job-ci-skip-check
+      - job-echo-content-pr:
+          requires:
+            - job-ci-skip-check
+          filters:
+            branches:
+              ignore:
+                - master
+      - job-echo-content-master:
+          requires:
+            - job-ci-skip-check
+          filters:
+            branches:
+              only: master
+      - package:
+          requires:
+            - job-ci-skip-check
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /v\d+.+

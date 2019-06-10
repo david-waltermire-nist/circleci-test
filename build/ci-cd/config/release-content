@@ -1,0 +1,2 @@
+# file to include in the release
+content/**/*.md
