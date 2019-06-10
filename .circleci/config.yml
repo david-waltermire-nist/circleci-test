@@ -70,7 +70,8 @@ jobs: # a collection of
       - *checkout
       - *attach_build_workspace
       - check-skip-build
-      - run |
+      - run:
+        command: |
           export
   job-echo-content-pr:
     executor: java-executor
@@ -78,14 +79,16 @@ jobs: # a collection of
       - *checkout
       - *attach_build_workspace
       - check-skip-build
-      - run |
+      - run:
+        command: |
           export
   package:
     executor: go-executor
     steps:
       - *checkout
       - install-github-release
-      - run |
+      - run:
+        command: |
           bash "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
           find ~ -type f -print
 workflows:
