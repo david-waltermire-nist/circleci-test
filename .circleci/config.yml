@@ -89,6 +89,7 @@ jobs: # a collection of
       - install-github-release
       - run:
           command: |
+            export
             bash "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
             find ~ -type f -print
 workflows:
@@ -117,6 +118,6 @@ workflows:
       - package:
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /v\d+.+/
