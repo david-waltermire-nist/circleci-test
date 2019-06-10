@@ -90,7 +90,7 @@ jobs: # a collection of
       - run:
           command: |
             export | grep -v "GITHUB_TOKEN"
-            bash "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
+            bash -x "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
             find ~ -type f -print
 workflows:
   version: 2

@@ -56,7 +56,7 @@ github-release create \
     2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
 archive_name="oscal-${release_version}"
-archive_file="${archive_name}.tar.bz2"
+archive_file="${working_dir}/${archive_name}.tar.bz2"
 
 tar cvfj "${archive_file}" -C "${archive_dir}" .
 
@@ -68,7 +68,7 @@ github-release upload \
     --file "${archive_file}" \
     2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
-archive_file="${archive_name}.zip"
+archive_file="${working_dir}/${archive_name}.zip"
 
 (cd "${archive_dir}" && zip -r "${archive_file}" .)
 
