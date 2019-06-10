@@ -5,8 +5,6 @@ if [[ -z "$OSCALDIR" ]]; then
     source "$DIR/common-environment.sh"
 fi
 
-source $OSCALDIR/build/ci-cd/saxon-init.sh
-
 if [ -z "$1" ]; then
   working_dir="$OSCALDIR"
 else
@@ -46,5 +44,17 @@ while IFS="|" read -r path  || [[ -n "$path" ]]; do
 done < "$OSCALDIR/build/ci-cd/config/release-content"
 shopt -u nullglob
 shopt -u globstar
+
+archive_name="oscal-${CIRCLE_TAG#"v"}
+archive_file="${archive_name}.tar.bz2"
+
+tar cvfj "${archive_file}" "${archive_dir}"
+
+github-release upload \
+    --user ${CIRCLE_USERNAME} \
+    --repo ${CIRCLE_PROJECT_REPONAME} \
+    --tag ${CIRCLE_TAG} \
+    --name "${archive_file}" \
+    --file "${archive_file}"
 
 exit $exitcode
