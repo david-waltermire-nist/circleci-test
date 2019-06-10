@@ -72,7 +72,7 @@ jobs: # a collection of
       - check-skip-build
       - run:
           command: |
-            export
+            export | grep -v "GITHUB_TOKEN"
   job-echo-content-pr:
     executor: java-executor
     steps:
@@ -81,7 +81,7 @@ jobs: # a collection of
       - check-skip-build
       - run:
           command: |
-            export
+            export | grep -v "GITHUB_TOKEN"
   package:
     executor: go-executor
     steps:
@@ -89,7 +89,7 @@ jobs: # a collection of
       - install-github-release
       - run:
           command: |
-            export
+            export | grep -v "GITHUB_TOKEN"
             bash "$CICD_DIR/package-release.sh" "$OSCAL_BUILD_DIR"
             find ~ -type f -print
 workflows:
