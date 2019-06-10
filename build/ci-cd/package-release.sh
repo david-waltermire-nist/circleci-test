@@ -53,7 +53,6 @@ github-release create \
     --tag "${CIRCLE_TAG}" \
     --name "OSCAL ${release_version} Release" \
     --draft \
-    --pre-release \
     2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
 archive_name="oscal-${release_version}"
