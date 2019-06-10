@@ -95,7 +95,12 @@ workflows:
   version: 2
   build:
     jobs:
-      - job-ci-skip-check
+      - job-ci-skip-check:
+        filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
       - job-echo-content-pr:
           requires:
             - job-ci-skip-check
@@ -110,10 +115,8 @@ workflows:
             branches:
               only: master
       - package:
-          requires:
-            - job-ci-skip-check
           filters:
             branches:
               only: master
             tags:
-              only: /v\d+.+
+              only: /v\d+.+/
