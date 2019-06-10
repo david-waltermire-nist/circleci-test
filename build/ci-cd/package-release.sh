@@ -45,10 +45,21 @@ done < "$OSCALDIR/build/ci-cd/config/release-content"
 shopt -u nullglob
 shopt -u globstar
 
-archive_name="oscal-${CIRCLE_TAG#"v"}"
+release_version=${CIRCLE_TAG#"v"}
+
+github-release create \
+    --user "${CIRCLE_PROJECT_USERNAME}" \
+    --repo "${CIRCLE_PROJECT_REPONAME}" \
+    --tag "${CIRCLE_TAG}" \
+    --name "OSCAL ${release_version} Release" \
+    --draft \
+    --pre-release \
+    2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
+
+archive_name="oscal-${release_version}"
 archive_file="${archive_name}.tar.bz2"
 
-tar cvfj "${archive_file}" "${archive_dir}"
+tar cvfj "${archive_file}" -C "${archive_dir}" .
 
 github-release upload \
     --user "${CIRCLE_PROJECT_USERNAME}" \
@@ -58,5 +69,16 @@ github-release upload \
     --file "${archive_file}" \
     2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
+archive_file="${archive_name}.zip"
+
+(cd "${archive_dir}" && zip -r "${archive_file}" .)
+
+github-release upload \
+    --user "${CIRCLE_PROJECT_USERNAME}" \
+    --repo "${CIRCLE_PROJECT_REPONAME}" \
+    --tag "${CIRCLE_TAG}" \
+    --name "${archive_file}" \
+    --file "${archive_file}" \
+    2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
 exit $exitcode
