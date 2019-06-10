@@ -47,7 +47,7 @@ shopt -u globstar
 
 release_version=${CIRCLE_TAG#"v"}
 
-github-release create \
+github-release release \
     --user "${CIRCLE_PROJECT_USERNAME}" \
     --repo "${CIRCLE_PROJECT_REPONAME}" \
     --tag "${CIRCLE_TAG}" \
