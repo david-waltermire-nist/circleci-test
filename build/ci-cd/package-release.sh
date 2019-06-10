@@ -51,7 +51,7 @@ archive_file="${archive_name}.tar.bz2"
 tar cvfj "${archive_file}" "${archive_dir}"
 
 github-release upload \
-    --user "${BUILD_USERNAME}" \
+    --user "${CIRCLE_PROJECT_USERNAME}" \
     --repo "${CIRCLE_PROJECT_REPONAME}" \
     --tag "${CIRCLE_TAG}" \
     --name "${archive_file}" \
