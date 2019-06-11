@@ -8,7 +8,7 @@ fi
 if [ -z "$1" ]; then
   working_dir="$OSCALDIR"
 else
-  working_dir="$1"
+  working_dir=$(readlink -f "$1")
 fi
 echo "${P_INFO}Working in '${P_END}${working_dir}${P_INFO}'.${P_END}"
 
