@@ -18,13 +18,13 @@ mkdir -p "$archive_dir"
 exitcode=0
 shopt -s nullglob
 shopt -s globstar
-while IFS="|" read -r path  || [[ -n "$path" ]]; do
+while IFS="|" read path dest_path || [[ -n "$path" ]]; do
   shopt -s extglob
   [[ "$path" =~ ^[[:space:]]*# ]] && continue
   # remove leading space
   path="${path##+([[:space:]])}"
   # remove trailing space
-  path="${path%%+([[:space:]])}"
+  dest_path="${dest_path%%+([[:space:]])}"
   shopt -u extglob
 
   if [[ ! -z "$path" ]]; then
@@ -33,7 +33,11 @@ while IFS="|" read -r path  || [[ -n "$path" ]]; do
     for file in $files_to_process
     do
       src="$OSCALDIR/$file"
-      dest="${archive_dir}/${file/$OSCALDIR\//}"
+      if [ -z "$dest_path" ]; then
+        dest="${archive_dir}/${file/$OSCALDIR\//}"
+      else
+        dest="${archive_dir}${dest_path}"
+      fi
       dest_dir=${dest%/*} # remove filename
 
       echo "${P_INFO}Copying '$file' to '$dest'.${P_END}"
