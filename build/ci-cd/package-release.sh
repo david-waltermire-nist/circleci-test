@@ -68,7 +68,7 @@ github-release upload \
     --user "${CIRCLE_PROJECT_USERNAME}" \
     --repo "${CIRCLE_PROJECT_REPONAME}" \
     --tag "${CIRCLE_TAG}" \
-    --name "${archive_file}" \
+    --name "${archive_file/${working_dir}\//}" \
     --file "${archive_file}" \
     2>&1 | sed -e "s/access_token=[0-9a-fA-F]*/access_token=**redacted**/g"
 
